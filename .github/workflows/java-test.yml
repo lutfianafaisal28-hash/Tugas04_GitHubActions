@@ -1,0 +1,36 @@
+name: Java Unit Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Tugas/Tugas04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run tests dengan mvn test
+        run: mvn -B test
+
+      - name: Generate coverage report dengan mvn jacoco:report
+        run: mvn -B jacoco:report
+
+      - name: Upload artifact dengan nama "jacoco-report"
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: Tugas/Tugas04/target/site/jacoco/
