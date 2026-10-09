@@ -58,4 +58,10 @@ public class BankAccountTest {
     public void testSaldoAwalNegatifGagal() {
         assertThrows(IllegalArgumentException.class, () -> new BankAccount(-1000));
     }
+
+    @Test
+    public void testSaldoAwalPositifBerhasil() {
+        BankAccount acc = new BankAccount(50000);
+        assertEquals(50000.0, acc.getBalance());
+    }
 }
