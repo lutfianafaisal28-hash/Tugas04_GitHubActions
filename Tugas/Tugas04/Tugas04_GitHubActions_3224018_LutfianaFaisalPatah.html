@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<title>Tugas04 GitHub Actions - 3224018 - Lutfiana Faisal Patah</title>
+<style>
+@page{size:A4;margin:2cm;}
+body{font-family:'Segoe UI',Arial,sans-serif;color:#111;line-height:1.6;margin:0;padding:40px;max-width:900px;}
+.cover{text-align:center;padding:90px 20px 60px;page-break-after:always;}
+.cover h1{font-size:26px;margin-bottom:6px;}
+.cover h2{font-size:18px;font-weight:normal;color:#333;}
+.cover table{margin:40px auto;border-collapse:collapse;text-align:left;}
+.cover td{padding:6px 12px;border:1px solid #999;}
+h2.sec{border-bottom:3px solid #222;padding-bottom:4px;margin-top:44px;}
+h3{margin-top:26px;}
+table.data{border-collapse:collapse;width:100%;margin:10px 0;}
+table.data th,table.data td{border:1px solid #555;padding:6px 8px;text-align:left;font-size:13px;}
+pre{background:#f4f4f4;border:1px solid #ccc;padding:12px;overflow-x:auto;font-size:12px;line-height:1.5;}
+code{font-family:Consolas,monospace;}
+img.shot{width:100%;border:1px solid #888;margin:8px 0;}
+.cap{font-size:12px;color:#333;text-align:center;margin-bottom:20px;}
+.pagebreak{page-break-before:always;}
+ul.tight li{margin-bottom:4px;}
+</style></head><body>
+
+<div class="cover">
+<h1>TUGAS 04 — IMPLEMENTASI UNIT TESTING<br>DENGAN GITHUB ACTIONS</h1>
+<h2>Matakuliah Implementasi Pengujian Perangkat Lunak — Pertemuan 4<br>Dari Konsep White-box ke Pipeline CI/CD Otomatis</h2>
+<table>
+<tr><td><b>Nama</b></td><td>Lutfiana Faisal Patah</td></tr>
+<tr><td><b>NIM</b></td><td>3224018</td></tr>
+<tr><td><b>Kelas</b></td><td>Sistem Informasi</td></tr>
+<tr><td><b>Tanggal</b></td><td>9 Oktober 2026</td></tr>
+<tr><td><b>Repository</b></td><td>https://github.com/lutfianafaisal28-hash/Tugas04_GitHubActions</td></tr>
+</table>
+</div>
+
+<h2 class="sec">Bagian A: Git &amp; GitHub Dasar (25 poin)</h2>
+<h3>Soal 1 (10 poin)</h3>
+<p><b>1. Centralized VCS vs Distributed VCS.</b> Centralized VCS menyimpan seluruh versi/history pada satu server pusat; client hanya memiliki working copy dan harus terhubung ke server untuk commit maupun melihat history. Contoh: SVN (Apache Subversion) dan CVS. Distributed VCS memberi setiap developer salinan lengkap repository beserta history-nya, sehingga commit, branch, dan merge bisa dilakukan offline lalu disinkronkan via push/pull; tidak ada single point of failure dan branching jauh lebih ringan. Contoh: Git dan Mercurial.</p>
+<p><b>2. Lima Git command wajib beserta fungsinya:</b></p>
+<ul class="tight">
+<li><code>git clone &lt;url&gt;</code> — menyalin remote repository ke lokal.</li>
+<li><code>git add .</code> — memasukkan file ke staging area.</li>
+<li><code>git commit -m "pesan"</code> — menyimpan snapshot staging ke history lokal.</li>
+<li><code>git push origin main</code> — mengirim commit lokal ke remote repository.</li>
+<li><code>git pull origin main</code> — mengambil dan menggabungkan perubahan remote ke lokal.</li>
+</ul>
+<p>Perintah pendukung yang juga dipakai: <code>git branch</code>, <code>git checkout</code>, <code>git merge</code>, <code>git log --oneline</code>, <code>git status</code>.</p>
+<p><b>3. Fungsi .gitignore.</b> File teks berisi pola path yang harus diabaikan Git agar tidak di-track/commit, misalnya hasil build (<code>target/</code>), file IDE (<code>.idea/</code>, <code>.vscode/</code>, <code>*.iml</code>), file OS (<code>.DS_Store</code>, <code>Thumbs.db</code>), dan file coverage (<code>*.exec</code>).</p>
+
+<h3>Soal 2 (15 poin) — Praktik Git (telah dieksekusi, history terlampir di repository)</h3>
+<pre>git clone https://github.com/lutfianafaisal28-hash/Tugas04_GitHubActions.git
+cd Tugas04_GitHubActions
+# isi README.md dengan nama + NIM
+git add README.md .gitignore
+git commit -m "docs: add README"
+git push -u origin main
+git branch feature-test
+git checkout feature-test
+echo "file test untuk praktik branch feature-test" &gt; test.txt
+git add test.txt
+git commit -m "test: add test file"
+git push -u origin feature-test
+git checkout main
+git merge feature-test
+git push origin main</pre>
+<p>History commit: <code>docs: add README</code> → <code>test: add test file</code> (branch feature-test, di-merge ke main) → <code>feat: implement unit testing</code> → <code>docs: add jawaban</code>.</p>
+
+<h2 class="sec">Bagian B: Unit Testing Framework (35 poin)</h2>
+<h3>Soal 3 (15 poin) — validasiPendaftaran, 5 test case independent path</h3>
+<table class="data"><tr><th>#</th><th>Input (nama, umur, email, setuju)</th><th>Expected</th></tr>
+<tr><td>P1</td><td>"", 20, "user@mail.com", true (dan null)</td><td>Nama harus diisi</td></tr>
+<tr><td>P2</td><td>"Budi", 15, "budi@mail.com", true</td><td>Umur minimal 17 tahun</td></tr>
+<tr><td>P3</td><td>"Budi", 20, "budimail.com", true</td><td>Email tidak valid</td></tr>
+<tr><td>P5</td><td>"Budi", 20, "budi@mail.com", false</td><td>Harus menyetujui syarat dan ketentuan</td></tr>
+<tr><td>P-ok</td><td>"Budi", 20, "budi@mail.com", true</td><td>Pendaftaran berhasil</td></tr></table>
+<p>Implementasi JUnit: <code>Tugas/Tugas04/src/test/java/com/stmik/PendaftaranValidatorTest.java</code> (6 method @Test, termasuk kasus nama null). Pola Arrange-Act-Assert; setup objek via @BeforeEach.</p>
+
+<h3>Soal 4 (20 poin) — StudentGrade</h3>
+<p><b>1. Cyclomatic Complexity calculateGrade().</b> Node predikat: <code>score&lt;0 || score&gt;100</code> (1 if + 1 operator || = 2), <code>score&gt;=80</code>, <code>&gt;=70</code>, <code>&gt;=60</code>, <code>&gt;=50</code> (4) → total keputusan = 6 → V(G) = 6 + 1 = <b>7</b>. (Catatan: materi slide menghitung <code>||</code> sebagai satu sehingga menyebut 6; perhitungan ketat dengan operator logika memberi 7. Jumlah test case minimal mengikuti V(G).)</p>
+<p><b>2. Independent Path:</b> (1) skor invalid → throw IllegalArgumentException; (2) ≥80 → "A"; (3) 70–79 → "B"; (4) 60–69 → "C"; (5) 50–59 → "D"; (6) 0–49 → "E".</p>
+<p><b>3. JUnit:</b> <code>StudentGradeTest.java</code> — 7 test calculateGrade (2 invalid + A/B/C/D/E) + 4 test isPassed (lulus 70, batas 60, tidak lulus 50, invalid -1/120). Verifikasi: assertEquals, assertTrue/False, assertThrows.</p>
+
+<h2 class="sec">Bagian C: GitHub Actions (25 poin)</h2>
+<h3>Soal 5 (15 poin) — Analisis workflow Python CI</h3>
+<p><b>1. Nama workflow:</b> <code>Python CI</code>. <b>2. Trigger:</b> <code>push</code> ke branch <code>main</code> dan <code>develop</code>, serta <code>pull_request</code> ke <code>main</code>. <b>3. Fungsi strategy matrix</b> (<code>python-version: ['3.10','3.11','3.12']</code>): menjalankan job <code>test</code> secara paralel tiga kali, masing-masing dengan satu versi Python, untuk memastikan kompatibilitas lintas versi. <b>4. Steps:</b> perlu dikoreksi — YAML yang diberikan hanya memuat <b>4 steps</b>, bukan 5: (1) Checkout code (<code>actions/checkout@v4</code>), (2) Setup Python sesuai matrix (<code>actions/setup-python@v5</code>), (3) Install dependencies (<code>pip install pytest pytest-cov</code>), (4) Run tests (<code>pytest --cov=src --cov-report=xml</code>). Terdapat ketidaksesuaian antara soal (meminta 5) dan isi YAML (4).</p>
+<h3>Soal 6 (10 poin) — Workflow Java (file <code>.github/workflows/java-test.yml</code>)</h3>
+<pre>name: Java Unit Test
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Tugas/Tugas04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - name: Run tests dengan mvn test
+        run: mvn -B test
+      - name: Generate coverage report dengan mvn jacoco:report
+        run: mvn -B jacoco:report
+      - name: Upload artifact dengan nama "jacoco-report"
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: Tugas/Tugas04/target/site/jacoco/</pre>
+<p>Catatan: <code>working-directory</code> dipakai karena project Maven berada di <code>Tugas/Tugas04</code> sesuai format pengumpulan.</p>
+
+<h2 class="sec">Bagian D: Code Coverage &amp; Integrasi (15 poin)</h2>
+<h3>Soal 7 — Analisis coverage report</h3>
+<p><b>1.</b> Total statement = 10 + 15 + 20 + 5 = <b>50</b>. <b>2.</b> Total miss = 0 + 2 + 8 + 1 = <b>11</b>. <b>3.</b> Coverage terendah: <b>src/payment.py, 60%</b>. <b>4.</b> Untuk payment.py: buka laporan HTML, identifikasi 8 baris/cabang yang miss, tambah test untuk branch if/else, exception, dan edge case pembayaran yang belum tersentuh, lalu jalankan ulang <code>pytest --cov</code>. <b>5.</b> Coverage 78% <b>belum cukup baik</b> — target materi 80–90% line coverage; 78% di bawah ambang dan payment.py hanya 60% sehingga risiko bug tinggi. Perlu ditingkatkan minimal ≥80% (ideal ≥90% untuk modul kritis).</p>
+<p>Hasil JaCoCo project ini (bukti di bawah): 100% instruction, 97% branch, 44/44 lines, 10/10 methods — di atas target.</p>
+
+<h2 class="sec">Bagian E: Studi Kasus Terpadu — Bonus (10 poin)</h2>
+<h3>Soal 8 — BankAccount</h3>
+<p>Kelas <code>com.stmik.BankAccount</code>: <code>deposit(amount)</code>, <code>withdraw(amount)</code>, <code>getBalance()</code>; validasi: nominal harus positif, withdraw tidak boleh melebihi saldo, saldo awal tidak boleh negatif. Unit test (<code>BankAccountTest.java</code>) 9 test case: saldo awal nol, deposit berhasil, deposit negatif/nol ditolak, withdraw berhasil, withdraw melebihi saldo ditolak, withdraw negatif ditolak, konstruktor negatif ditolak, konstruktor positif berhasil. Workflow dan coverage memakai pipeline yang sama; hasil lokal 26/26 test hijau.</p>
+
+<h2 class="sec">Link Repository GitHub</h2>
+<p>https://github.com/lutfianafaisal28-hash/Tugas04_GitHubActions</p>
+
+<h2 class="sec pagebreak">Lampiran — Bukti Screenshot</h2>
+<p><b>Gambar 1 — Repository GitHub.</b></p>
+<img class="shot" src="screenshots/01-repository-github.png">
+<p><b>Gambar 2 — Folder Tugas/Tugas04 di GitHub.</b></p>
+<img class="shot" src="screenshots/02-folder-tugas04.png">
+<p><b>Gambar 3 — Pipeline GitHub Actions SUCCESS + artifact jacoco-report.</b></p>
+<img class="shot" src="screenshots/03-actions-success.png">
+<p><b>Gambar 4 — Hasil mvn test lokal (BUILD SUCCESS, 26 tests).</b></p>
+<img class="shot" src="screenshots/04-mvn-test.png">
+<p><b>Gambar 5 — Coverage report JaCoCo lokal.</b></p>
+<img class="shot" src="screenshots/05-jacoco-coverage.png">
+<div class="cap">Laporan ini disusun berdasarkan implementasi yang dijalankan dan terverifikasi pada 9 Oktober 2026.</div>
+
+</body></html>
